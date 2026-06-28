@@ -190,8 +190,12 @@ export function ChatApp({ session }: ChatAppProps) {
 
   useEffect(() => {
     function syncVisibleHeight() {
-      const viewportHeight = window.visualViewport?.height || window.innerHeight;
-      const viewportTop = window.visualViewport?.offsetTop || 0;
+      const isAndroid = /Android/i.test(window.navigator.userAgent);
+      const viewportHeight = isAndroid
+        ? window.innerHeight
+        : window.visualViewport?.height || window.innerHeight;
+      const viewportTop = isAndroid ? 0 : window.visualViewport?.offsetTop || 0;
+
       setAppHeight(`${viewportHeight}px`);
       setAppTop(`${viewportTop}px`);
       window.requestAnimationFrame(scrollToLatestMessage);
