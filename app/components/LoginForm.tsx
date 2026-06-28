@@ -43,6 +43,7 @@ export function LoginForm() {
       return;
     }
 
+    window.sessionStorage.setItem("purplechat_unlocked", "true");
     window.location.reload();
   }
 

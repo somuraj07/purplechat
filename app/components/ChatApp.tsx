@@ -189,6 +189,19 @@ export function ChatApp({ session }: ChatAppProps) {
   }, [savedCustomReactions]);
 
   useEffect(() => {
+    if (window.sessionStorage.getItem("purplechat_unlocked") === "true") {
+      return;
+    }
+
+    async function lockChat() {
+      await fetch("/api/logout", { method: "POST" });
+      window.location.reload();
+    }
+
+    void lockChat();
+  }, []);
+
+  useEffect(() => {
     function syncVisibleHeight() {
       const isAndroid = /Android/i.test(window.navigator.userAgent);
       const viewportHeight = isAndroid
@@ -645,7 +658,7 @@ export function ChatApp({ session }: ChatAppProps) {
               </h2>
             </div>
           ) : (
-            <div className="space-y-1.5">
+            <div className="flex min-h-full flex-col justify-end gap-1.5">
               {messages.map((message) => {
                 const isMine = message.author_id === session.id;
                 const isCurrentEdit = editingMessageId === message.id;

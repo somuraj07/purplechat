@@ -12,7 +12,6 @@ type SessionPayload = PartnerSession & {
 };
 
 const COOKIE_NAME = "purplechat_session";
-const SESSION_DAYS = 30;
 
 function getSessionSecret() {
   return process.env.PURPLECHAT_SESSION_SECRET?.trim();
@@ -124,15 +123,13 @@ export function setPartnerSession(
   session: PartnerSession,
   secure: boolean,
 ) {
-  const maxAge = SESSION_DAYS * 24 * 60 * 60;
   const token = encodeSession({
     ...session,
-    exp: Date.now() + maxAge * 1000,
+    exp: Date.now() + 24 * 60 * 60 * 1000,
   });
 
   response.cookies.set(COOKIE_NAME, token, {
     httpOnly: true,
-    maxAge,
     sameSite: "lax",
     secure,
     path: "/",
