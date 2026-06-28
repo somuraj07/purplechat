@@ -15,7 +15,7 @@ const COOKIE_NAME = "purplechat_session";
 const SESSION_DAYS = 30;
 
 function getSessionSecret() {
-  return process.env.PURPLECHAT_SESSION_SECRET;
+  return process.env.PURPLECHAT_SESSION_SECRET?.trim();
 }
 
 function sign(value: string) {
@@ -77,12 +77,12 @@ export function identifyPartner(secretCode: string): PartnerSession | null {
     {
       id: "you" as const,
       name: process.env.PURPLECHAT_NAME_YOU || "You",
-      code: process.env.PURPLECHAT_CODE_YOU,
+      code: process.env.PURPLECHAT_CODE_YOU?.trim(),
     },
     {
       id: "partner" as const,
       name: process.env.PURPLECHAT_NAME_PARTNER || "Partner",
-      code: process.env.PURPLECHAT_CODE_PARTNER,
+      code: process.env.PURPLECHAT_CODE_PARTNER?.trim(),
     },
   ];
 
@@ -122,6 +122,7 @@ export async function getPartnerSession() {
 export function setPartnerSession(
   response: NextResponse,
   session: PartnerSession,
+  secure: boolean,
 ) {
   const maxAge = SESSION_DAYS * 24 * 60 * 60;
   const token = encodeSession({
@@ -133,17 +134,17 @@ export function setPartnerSession(
     httpOnly: true,
     maxAge,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure,
     path: "/",
   });
 }
 
-export function clearPartnerSession(response: NextResponse) {
+export function clearPartnerSession(response: NextResponse, secure = false) {
   response.cookies.set(COOKIE_NAME, "", {
     httpOnly: true,
     maxAge: 0,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure,
     path: "/",
   });
 }
