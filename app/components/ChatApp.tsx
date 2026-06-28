@@ -167,8 +167,7 @@ export function ChatApp({ session }: ChatAppProps) {
   const [, setStatus] = useState("Connecting...");
   const [isSending, setIsSending] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [appHeight, setAppHeight] = useState("100dvh");
-  const [appTop, setAppTop] = useState("0px");
+  const [keyboardInset, setKeyboardInset] = useState(0);
   const formRef = useRef<HTMLFormElement | null>(null);
   const messagesListRef = useRef<HTMLDivElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -203,14 +202,12 @@ export function ChatApp({ session }: ChatAppProps) {
 
   useEffect(() => {
     function syncVisibleHeight() {
-      const isAndroid = /Android/i.test(window.navigator.userAgent);
-      const viewportHeight = isAndroid
-        ? window.innerHeight
-        : window.visualViewport?.height || window.innerHeight;
-      const viewportTop = isAndroid ? 0 : window.visualViewport?.offsetTop || 0;
+      const viewport = window.visualViewport;
+      const nextKeyboardInset = viewport
+        ? Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop)
+        : 0;
 
-      setAppHeight(`${viewportHeight}px`);
-      setAppTop(`${viewportTop}px`);
+      setKeyboardInset(Math.round(nextKeyboardInset));
       window.requestAnimationFrame(scrollToLatestMessage);
     }
 
@@ -601,10 +598,12 @@ export function ChatApp({ session }: ChatAppProps) {
   return (
     <>
       <main
-        style={{ height: appHeight, top: appTop }}
-        className="fixed inset-x-0 flex overflow-hidden bg-[radial-gradient(circle_at_top_left,#f0abfc,transparent_22%),linear-gradient(145deg,#2e1065,#6b21a8_48%,#c084fc)] p-0 text-slate-950 sm:p-4"
+        className="fixed inset-0 flex overflow-hidden bg-[radial-gradient(circle_at_top_left,#f0abfc,transparent_22%),linear-gradient(145deg,#2e1065,#6b21a8_48%,#c084fc)] p-0 text-slate-950 sm:p-4"
       >
-        <section className="mx-auto flex h-full min-h-0 w-full max-w-5xl flex-col overflow-hidden bg-purple-50 shadow-2xl shadow-purple-950/30 sm:rounded-4xl sm:border sm:border-white/40 sm:bg-white/35 sm:backdrop-blur-xl lg:grid lg:grid-cols-[280px_1fr]">
+        <section
+          style={{ paddingBottom: keyboardInset }}
+          className="mx-auto flex h-full min-h-0 w-full max-w-5xl flex-col overflow-hidden bg-purple-50 shadow-2xl shadow-purple-950/30 sm:rounded-4xl sm:border sm:border-white/40 sm:bg-white/35 sm:backdrop-blur-xl lg:grid lg:grid-cols-[280px_1fr]"
+        >
           <aside className="hidden border-r border-white/50 bg-white/55 p-6 lg:block">
             <div className="rounded-4xl bg-white/70 p-5 shadow-xl shadow-purple-200/40">
               <div className="mb-5 flex items-center gap-3">
